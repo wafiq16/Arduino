@@ -1,0 +1,7 @@
+this project we use
+
+1. Node MCU as main microcontroler
+2. servo as fish's feeder
+3. DS3231 as RTC scheduler
+4. I2C LCD to display real-time clock and feed status
+5. Mqtg (MQTT telegram bot) to display data and sending command for manual feeding
