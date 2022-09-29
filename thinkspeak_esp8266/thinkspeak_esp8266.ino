@@ -74,15 +74,6 @@ void loop() {
     Serial.println("Problem updating channel. HTTP error code " + String(x));
   }
 
-  // change the values
-  //  number1++;
-  //  if(number1 > 99){
-  //    number1 = 0;
-  //  }
-  //  number2 = random(0,100);
-  //  number3 = random(0,100);
-  //  number4 = random(0,100);
-
 //  delay(1000); // Wait 20 seconds to update the channel again
 }
 

@@ -65,7 +65,7 @@ CRGB leds2[NUM_LEDS];
 void setup() {
 
   delay( 3000 ); // power-up safety delay
-  Serial.begin(9600);
+  Serial.begin(115200);
   FastLED.addLeds<LED_TYPE, LED_PWM_BOT, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED2.addLeds<LED_TYPE, LED_PWM_SIDE, COLOR_ORDER>(leds2, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(  BRIGHTNESS );
@@ -193,6 +193,8 @@ void loop()
   //  }
   //  else if(!whiteLight && !redLight && !greenLight && !blueLight){
 
+  //  bottom
+  
   if (MTerima == 1) {
     digitalWrite(LED_ON_SIDE, HIGH);
     for ( int i = 0; i < NUM_LEDS; i++) {
@@ -205,9 +207,13 @@ void loop()
   else {
     digitalWrite(LED_ON_SIDE, HIGH);
     for ( int i = 0; i < NUM_LEDS; i++) {
-      leds2[i] = CHSV(0, 0, 255);
+      //      leds2[i] = CHSV(0, 0, 255);
+      leds2[i] = CRGB(120, 200, 65);
     }
   }
+
+  //  side
+  
   if (OTerima == 1) {
     digitalWrite(LED_ON_BOT, HIGH);
     for ( int i = 0; i < NUM_LEDS; i++) {
@@ -220,7 +226,8 @@ void loop()
   else {
     digitalWrite(LED_ON_BOT, HIGH);
     for ( int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CHSV(0, 0, 255);
+      //      leds[i] = CHSV(0, 0, 255);
+      leds[i] = CRGB(185, 230, 65);
     }
   }
   if (LTerima == 1) {
@@ -273,6 +280,7 @@ void getRGB() {
   int digitG = strlen(String((int)green).c_str());
   int digitB = strlen(String((int)blue).c_str());
   sprintf(message, "AR%d%dG%d%dB%d%dS", digitR, (int)red, digitG, (int)green , digitB, (int)blue);
+//  delay(50);
   Serial.println(message);
   //  Serial.println(strlen(String(r).c_str()));
 }

@@ -14,29 +14,73 @@ BlynkTimer timer;
 
 int value = 0;
 
+bool captureSerialRx = false;
+bool completeSerialRx = false;
+
+String bufferRx;
+
+String strArusTerima;
+String strTeganganTerima;
+String strRPMTerima;
+
 void setup()
 {
   // Debug console
   Serial.begin(9600);
   Blynk.begin(auth, ssid, pass);
-  pinMode(2, OUTPUT);
 }
 
 void loop()
 {
-  Blynk.run();
+  readData();
 }
 
-BLYNK_WRITE(V4){  // This function gets called each time something changes on the widget
-  value = param.asInt();  // This gets the 'value' of the Widget as an integer
-  if(value >= 800)
-  {
-    digitalWrite(2, HIGH);  // this send a PWM signal based on 'value' to the GPIO pin
-    Blynk.notify("Kondisi gas berbahaya");
+void readData() {
+  if (Serial.available()) {
+    char rxChar = Serial.read();
+
+    if (rxChar == 'A' && !captureSerialRx) captureSerialRx = true;
+    else if (rxChar == 'B' && captureSerialRx) {
+      captureSerialRx = false;
+      completeSerialRx = true;
+      strArusTerima = "";
+      strTeganganTerima = "";
+      strRPMTerima = "";
+    }
+
+    if (captureSerialRx) {
+      bufferRx += rxChar;
+    }
   }
-  else
-  {
-    digitalWrite(2, LOW);
-    Blynk.notify("Kondisi gas aman");
+
+  if (completeSerialRx) {
+    for (int i = 0; i < strlen(bufferRx.c_str()); i++) {
+      if (bufferRx.charAt(i) == 'V') {
+        int digit = bufferRx.charAt(i + 1) - 48;
+        for (int j = 2; j <= digit + 1; j++) {
+          strArusTerima += bufferRx.charAt(i + j);
+        }
+      }
+      if (bufferRx.charAt(i) == 'I') {
+        int digit = bufferRx.charAt(i + 1) - 48;
+        for (int j = 2; j <= digit + 1; j++) {
+          strTeganganTerima += bufferRx.charAt(i + j);
+        }
+      }
+      if (bufferRx.charAt(i) == 'R') {
+        int digit = bufferRx.charAt(i + 1) - 48;
+        for (int j = 2; j <= digit + 1; j++) {
+          strRPMTerima2 += bufferRx.charAt(i + j);
+        }
+      }
+    }
+
+    // set the fields with the values
+    Blynk.run();
+    Blynk.virtualWrite(V0, strArusTerima);
+    Blynk.virtualWrite(V1, strTeganganTerima);
+    Blynk.virtualWrite(V2, strRPMTerima);
+    bufferRx = "";
+    completeSerialRx = false;
   }
 }

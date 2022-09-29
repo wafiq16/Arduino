@@ -1,7 +1,6 @@
 
 extern "C" {
   void app_loop();
-  void eraseMcuConfig();
   void restartMCU();
 }
 
@@ -16,12 +15,16 @@ extern "C" {
 #error "Please specify your BLYNK_TEMPLATE_ID and BLYNK_DEVICE_NAME"
 #endif
 
+BlynkTimer edgentTimer;
+
 #include "BlynkState.h"
 #include "ConfigStore.h"
 #include "ResetButton.h"
 #include "ConfigMode.h"
 #include "Indicator.h"
 #include "OTA.h"
+#include "Console.h"
+
 
 inline
 void BlynkState::set(State m) {
@@ -39,10 +42,11 @@ void printDeviceBanner()
   Blynk.printBanner();
   DEBUG_PRINT("--------------------------");
   DEBUG_PRINT(String("Product:  ") + BLYNK_DEVICE_NAME);
-  DEBUG_PRINT(String("Hardware: ") + BOARD_HARDWARE_VERSION);
   DEBUG_PRINT(String("Firmware: ") + BLYNK_FIRMWARE_VERSION " (build " __DATE__ " " __TIME__ ")");
   if (configStore.getFlag(CONFIG_FLAG_VALID)) {
-    DEBUG_PRINT(String("Token:    ...") + (configStore.cloudToken+28));
+    DEBUG_PRINT(String("Token:    ") +
+                String(configStore.cloudToken).substring(0,4) +
+                " - •••• - •••• - ••••");
   }
   DEBUG_PRINT(String("Device:   ") + BLYNK_INFO_DEVICE + " @ " + ESP.getCpuFreqMHz() + "MHz");
   DEBUG_PRINT(String("MAC:      ") + WiFi.macAddress());
@@ -71,14 +75,14 @@ class Edgent {
 public:
   void begin()
   {
+    WiFi.persistent(false);
+    WiFi.enableSTA(true); // Needed to get MAC
+
     indicator_init();
     button_init();
     config_init();
-
-    WiFi.persistent(false);
-    WiFi.enableSTA(true);   // Needed to get MAC
-
     printDeviceBanner();
+    console_init();
 
     if (configStore.getFlag(CONFIG_FLAG_VALID)) {
       BlynkState::set(MODE_CONNECTING_NET);
@@ -105,12 +109,10 @@ public:
     }
   }
 
-};
-
-Edgent BlynkEdgent;
-BlynkTimer timer;
+} BlynkEdgent;
 
 void app_loop() {
-    timer.run();
+    edgentTimer.run();
+    edgentConsole.run();
 }
 

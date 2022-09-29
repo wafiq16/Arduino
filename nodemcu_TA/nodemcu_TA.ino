@@ -22,7 +22,7 @@ char pub_str[100];
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-int Telegram_Delay = 1000;
+int Telegram_Delay = 100;
 int Time_Temp = 0;
 
 int Pin_Led = D3;
@@ -39,7 +39,7 @@ String ssid = ssidku;
 String pass = password;
 uint8_t led = Pin_Led;
 
-char *message="";
+char *message = "";
 
 void callback(char* topic, byte *payload, unsigned int length) {
   StaticJsonDocument<200> doc;
@@ -72,7 +72,25 @@ void callback(char* topic, byte *payload, unsigned int length) {
   Serial.print(digit_e);
   Serial.print(e);
   Serial.print("B");
-//  AL11M11N255O10P297B
+
+  Serial.print("A");
+  Serial.print("L");
+  Serial.print(digit_a);
+  Serial.print(a);
+  Serial.print("M");
+  Serial.print(digit_b);
+  Serial.print(b);
+  Serial.print("N");
+  Serial.print(digit_c);
+  Serial.print(c);
+  Serial.print("O");
+  Serial.print(digit_d);
+  Serial.print(d);
+  Serial.print("P");
+  Serial.print(digit_e);
+  Serial.print(e);
+  Serial.print("B");
+  //  AL11M11N255O10P297B
 }
 
 void reconnect() {
@@ -94,46 +112,47 @@ void publishSerialData(char *serialData, char* topic) {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   WiFi.begin(ssid, password);
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  client.subscribe(SUBTOPICDEMO1);
   reconnect();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   getRGB();
-
-  DynamicJsonDocument root(1024);
-
-//  root["tegangan_fasa_1"] = 1;
-//  root["tegangan_fasa_2"] = 2;
-//  root["tegangan_fasa_3"] = 3;
-//  root["arus_fasa_1"] = 1;
-//  root["arus_fasa_2"] = 2;
-//  root["arus_fasa_3"] = 3;
-//  root["arus_total"] = 6;
-//  root["tegangan_total"] = 6;
-//  root["daya"] = 36;
-
-  root["R"] = strRTerima;
-  root["G"] = strGTerima;
-  root["B"] = strBTerima; 
-  char myBuffer[1023];
-  serializeJson(root, myBuffer);
-
   if (!client.connected())
   {
     reconnect();
   }
+  client.loop();
+  client.subscribe(SUBTOPICDEMO1);
+
+  DynamicJsonDocument root(1024);
+
+  //  root["tegangan_fasa_1"] = 1;
+  //  root["tegangan_fasa_2"] = 2;
+  //  root["tegangan_fasa_3"] = 3;
+  //  root["arus_fasa_1"] = 1;
+  //  root["arus_fasa_2"] = 2;
+  //  root["arus_fasa_3"] = 3;
+  //  root["arus_total"] = 6;
+  //  root["tegangan_total"] = 6;
+  //  root["daya"] = 36;
+
+  root["R"] = strRTerima;
+  root["G"] = strGTerima;
+  root["B"] = strBTerima;
+  char myBuffer[1023];
+  serializeJson(root, myBuffer);
 
   if (millis() - Time_Temp > Telegram_Delay) {
     publishSerialData(myBuffer, PUBTOPICDEMO1);
     Time_Temp = millis();
   }
-  client.subscribe(SUBTOPICDEMO1);
-  client.loop();
+
 }
 
 void getRGB() {
@@ -176,9 +195,9 @@ void getRGB() {
       }
       bufferRx = "";
       completeSerialRx = false;
-//      Serial.println(strRTerima);
-//      Serial.println(strGTerima);
-//      Serial.println(strBTerima);
+      //      Serial.println(strRTerima);
+      //      Serial.println(strGTerima);
+      //      Serial.println(strBTerima);
     }
   }
 }
